@@ -1,5 +1,7 @@
 const { emit } = require("../models/userModel")
 const userModel = require("../models/userModel")
+const bcrypt=require('bcrypt')
+const jwt=require("jsonwebtoken")
 const {
     isValid,
     phoneNumber,
@@ -143,12 +145,76 @@ const createUser = async function (req, res) {
             return res.status(400).send({ status: false, msg: err.join(",") })
         }
 
-
+        const hashPassword = await bcrypt.hash("password", 10);
+        req.body.password = hashPassword
 
         let createData = await userModel.create(data)
         return res.status(201).send({ status: true, data: createData })
     }
     catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
 }
+//==========================================================================
+const login = async function(req,res){
+    try{
+        const data =req.body
+       const{email,password} = data
+       //console.log(data)
+       if(!email || !password)
+       res.status(400).send({status:false, message:"Credential must be present"})
+
+       let user = await userModel.findOne({email:email})
+       console.log(user)
+       if(!user){
+       return res.status(400).send({status:false,message : "email is not correct"})
+    }
+       let checkPassword = await userModel.findOne({password:password})
+       if(!checkPassword) {
+       return res.status(400).send({status:false,message : "password is not correct"}) }
+
+
+       const matchPass = bcrypt.compare(password, user.password);
+        if (!matchPass) {
+            return res.status(400).send({ status: false, message: "You Entered Wrong password" })
+        }
+       let token = jwt.sign(
+        {
+            userId: user._id.toString(),
+            batch: "plutonium",
+            organisation: "FunctionUp",
+        },
+        "Project5-group4",
+        {
+            expiresIn: '72h'
+        }
+    );
+    const finalData = {};
+    finalData.userId = user._id;
+    finalData.token = token
+    res.status(201).send({ status: true, message: "User login successfull", token:{token: finalData} });
+
+
+    }catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
+}
+//===========================================================================
+const getUser = async function (req, res) {
+    try {
+        let id = req.params.userId
+        if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
+        if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
+
+        const foundUser = await userModel.findOne({ _id: id })
+        if (!foundUser) return res.status(404).send({ status: false, message: "user not found" })
+
+        return res.status(200).send({ status: true, message: "User details", data: foundUser })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+//=========================================================================
 
 module.exports.createUser = createUser;
+module.exports.login = login;
+module.exports.getUser = getUser;
+
