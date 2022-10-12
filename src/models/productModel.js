@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const productSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -33,7 +34,8 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     style: {
-        type: String
+        type: String,
+        trim:true
     },
     availableSizes: {
         type: [String],
@@ -51,4 +53,5 @@ const productSchema = new mongoose.Schema({
         default: false
     }
 }, {timestamps: true});
-module.exports = mongoose.model('Product', productSchema)
+
+module.exports = mongoose.model('Product04', productSchema)

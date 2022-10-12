@@ -1,52 +1,48 @@
-const isValid = function (value) {
-//if(typeof value ==="undefined"|| value===null) return false;
-    if (typeof value === "object" && Object.keys(value).length === 0) return false;
-    if (typeof value !== "string" || value.trim().length === 0) {
-      return false;
-    } else {
-      return true;
-    }
+const mongoose = require('mongoose');
+
+const isValid = (value) => {
+  if (typeof value === "undefined" || typeof value === "null") return true;
+  if (typeof value === "string" && value.trim().length === 0) return true;
+  if (typeof value === "object" && Object.keys(value).length === 0) return true;
+  return false;
+}
+
+const isValidBody = (reqBody) => {
+  return Object.keys(reqBody).length === 0;
+}
+
+const isValidPassword = (password) => {
+    if (password.length > 7 && password.length < 16) return true
+}
+
+const isValidPhone = (Mobile) => {
+    return /^[6-9]\d{9}$/.test(Mobile)
   };
   
-  const phoneNumber = function (data) {
-    const mobileRegex = /^([9876]{1})([0-9]{9})$/;
-    return mobileRegex.test(data);
+  const isValidEmail = (Email) => {
+    return  /^([A-Za-z0-9._]{3,}@[A-Za-z]{3,}[.]{1}[A-Za-z.]{2,6})+$/.test(Email)
   };
   
-  const isValidEmail = function (data) {
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    return emailRegex.test(data);
-  };
-  
-  const isValidPincode = function (data) {
-    const pincodeRegex = /^[0-9]{6}$/;
-    return pincodeRegex.test(data);
-  };
-  
-  function checkPassword(str) {
-    var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,15}$/;
-    return re.test(str);
-  }
-  
-  function checkname(str) {
-    var nameRegex = /^[A-Z a-z]+$/;
-    return nameRegex.test(str);
-  }
+const isValidPincode = (num) => {
+    return  /^[0-9]{6}$/.test(num);
+   }
+ 
+const isValidObjectId = (objectId) => {
+    return mongoose.isValidObjectId(objectId)
+    
+}
+
+const objectid = /^[0-9a-fA-F]{24}$/
 
 
-  const isValidString = (String) => {
+const isValidString = (String) => {
     return /\d/.test(String)
   }
+const isvalidCity = function (city){
+    return /^[a-zA-z',.\s-]{1,25}$/.test(city)
+  }
+  
+module.exports = {isValid,isValidBody,isValidPassword,isValidObjectId,isValidPincode,isValidPhone,isValidEmail,isvalidCity,isValidString,objectid}
 
 
-  const objectid = /^[0-9a-fA-F]{24}$/
-  module.exports = {
-    isValid,
-    phoneNumber,
-    isValidEmail,
-    isValidPincode,
-    checkPassword,
-    checkname,
-    isValidString
-   
-  };
+
