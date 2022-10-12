@@ -18,7 +18,8 @@ const productSchema = new mongoose.Schema({
     },
     currencyId: {
         type: String,
-        required: true
+        required: true,
+        default:"INR"
     },
     currencyFormat: {
         type: String,
@@ -39,14 +40,17 @@ const productSchema = new mongoose.Schema({
     },
     availableSizes: {
         type: [String],
+        required:true,
         enum: ["S", "XS", "M", "X", "L", "XXL", "XL"],
+        trim:true
+        
     },
     installments: {
         type: Number
     },
     deletedAt: {
-        type: Date,
-        default: null
+        type: Date
+        
     },
     isDeleted: {
         type: Boolean,
@@ -54,4 +58,4 @@ const productSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-module.exports = mongoose.model('Product04', productSchema)
+module.exports = mongoose.model('Product', productSchema)

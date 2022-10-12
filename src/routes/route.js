@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController= require("../controllers/userController")
 const{authentication,authorization} = require("../middlewares/auth");
+const productController = require("../controllers/productControllere")
 
 router.post("/register",userController.createUser)
 router.post("/login",userController.login)
@@ -9,6 +10,8 @@ router.post("/login",userController.login)
 router.get("/user/:userId/profile",userController.getUser)
 
 router.put("/user/:userId/profile",authentication,authorization,userController.updateUser)
+
+router.post("/products", productController.createProduct)
 
 //Error Handing
 router.all('/*', (req, res) => {
