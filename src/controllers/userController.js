@@ -1,125 +1,147 @@
 
-const userModel = require("../models/userModel")
-const bcrypt=require('bcrypt')
-const jwt=require("jsonwebtoken")
+const userModel = require("../models/userModel");
+const jwt = require("jsonwebtoken")
+const bcrypt = require('bcrypt');
 const aws = require('../AWS/aws')
-const {
-    isValid,
-    phoneNumber,
-    isValidEmail,
-    isValidPincode,
-    checkPassword,
-    checkname,
-    isValidString,
-    isValidCity
-   
-
-} = require('../validations/validator')
-const objectid = /^[0-9a-fA-F]{24}$/
-
-const createUser = async function (req, res) {
+const validator = require("../validations/validator")
+let objectid = validator.objectid
+// ====================================================
+const createUser = async (req, res) => {
     try {
-        let data = req.body
-        let address=data.address
-        let requirefield = ["fname", "lname", "email", "phone", "password", "profileImage"]
-        let err = []
-        for (field of requirefield) {
-            if (!data.hasOwnProperty(field)) {
-                err.push(`${field} is mandatory in request body`)
-                continue
+        let data = req.body;
+        let files = req.files;
 
-            }
-            if (!isValid(data[field])) {
-                if (field === "phone") {
-                    err.push(`value of ${field} must be String and conatai something`);
-                    continue
-                }
-            }
-            if (!isValid(data[field])) {
+        let { fname, lname, email, password, phone, address } = data;
 
-                err.push(`value of ${field} must be String and conatai something`);
-                continue
-            }
+        if (validator.isValidBody(data)) return res.status(400).send({ status: false, message: "Enter details to create your account" });
 
-            if (field == 'fname') {
-                if (!checkname(data.fname)) {
-                    err.push("fname is invalid")
-                    continue
-                }
-            }
-            if (field == 'lname') {
-                if (!checkname(data.lname)) {
-                    err.push("lname is invalid")
-                    continue
-                }
-            }
-            if (field == "phone") {
-                if (!phoneNumber(data.phone)) {
-                    err.push("invalid phone number")
-                }
-            }
-            if (field == 'password') {
-                if (!checkPassword(data.password)) {
-                    err.push(" password is invalid")
-                }
-            }
-            if (field == "email") {
-                if (!isValidEmail(data[field])) {
-                    err.push("email is invalid");
-                    continue
+        //validating firstName
+        if (!fname) return res.status(400).send({ status: false, message: "First name is required" });
 
-                }
+        //checking for firstName
+        if (validator.isValid(fname)) return res.status(400).send({ status: false, message: "First name should not be an empty string" });
+
+        //validating firstName
+        if (validator.isValidString(fname)) return res.status(400).send({ status: false, message: "Enter a valid First name and should not contains numbers" });
+
+        //validating lastName
+        if (!lname) return res.status(400).send({ status: false, message: "Last name is required" })
+
+        //checking for lastName
+        if (validator.isValid(lname)) return res.status(400).send({ status: false, message: "Last name should not be an empty string" });
+
+        //validating lastName
+        if (validator.isValidString(lname)) return res.status(400).send({ status: false, message: "Enter a valid Last name and should not contains numbers" });
+
+
+        //checking for email-id
+        if (!email) return res.status(400).send({ status: false, message: "User Email-id is required" });
+
+        //validating user email-id
+        if (!validator.isValidEmail(email.trim())) return res.status(400).send({ status: false, message: "Please Enter a valid Email-id" });
+
+
+        //checking if email already exist or not
+        let duplicateEmail = await userModel.findOne({ email: email })
+        if (duplicateEmail) return res.status(400).send({ status: false, message: "Email already exist" })
+
+
+        //checking for phone number
+        if (!phone) return res.status(400).send({ status: false, message: "User Phone number is required" });
+
+        //validating user phone
+        if (!validator.isValidPhone(phone.trim())) return res.status(400).send({ status: false, message: "Please Enter a valid Phone number" });
+
+        //checking if phone already exist or not
+        let duplicatePhone = await userModel.findOne({ phone: phone })
+        if (duplicatePhone) return res.status(400).send({ status: false, message: "Phone already exist" })
+
+
+        //checking for password
+        if (!password) return res.status(400).send({ status: false, message: "Password is required" });
+
+        //validating user password
+        if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: "Password should be between 8 and 15 character and it should be alpha numeric" });
+
+        //checking for address
+        if (!address || validator.isValid(data.address))
+            return res.status(400).send({ status: false, message: "Address is required" });
+
+        data.address = JSON.parse(data.address);
+
+
+        let { shipping, billing } = data.address;
+        //validating the address 
+        if (data.address && typeof data.address != "object") {
+            return res.status(400).send({ status: false, message: "Address is in wrong format" })
+        };
+
+
+        if (shipping) {
+            //validation for shipping address
+            if (typeof shipping != "object") {
+                return res.status(400).send({ status: false, message: "Shipping Address is in wrong format" })
+            };
+            if (!shipping.street || validator.isValid(shipping.street)) {
+                return res.status(400).send({ status: false, message: "Street is required" })
             }
+            if (shipping.street && typeof shipping.street !== 'string') {
+                return res.status(400).send({ status: false, message: "Street is in wrong format" })
+            };
+            if (!shipping.city || validator.isValid(shipping.city)) {
+                return res.status(400).send({ status: false, message: "City is required" })
+            }
+            if (shipping.city && typeof shipping.city !== 'string') {
+                return res.status(400).send({ status: false, message: "City is in wrong format" })
+            };
+            if (!validator.isvalidCity(shipping.city)) {
+                return res.status(400).send({ status: false, message: "City name should only contain alphabets." });
+            }
+            if (!shipping.pincode) {
+                return res.status(400).send({ status: false, message: "Pincode is required" })
+            }
+            if (validator.isValid(shipping.pincode)) {
+                return res.status(400).send({ status: false, message: "Pincode is in wrong format" })
+            };
+            if (!validator.isValidPincode(shipping.pincode)) {
+                return res.status(400).send({ status: false, message: "Please Provide valid Pincode " })
+            };
+        } else {
+            return res.status(400).send({ status: false, message: "Shipping address is required" })
         }
-       // address = JSON.parse(address)
-        if (address) {
-            if (typeof address != "object") return res.status(400).send({ status: false, message: "address is in incorrect format" })
 
-            //*SHIPPING*    
-            if (address.shipping) {
-                if (address.shipping.street) {
-                    if (!isValid(address.shipping.street)) return res.status(400).send({ status: false, message: "shipping street is in incorrect format" })
-                } else return res.status(400).send({ status: false, message: "address.shipping.street is required" })
-
-                if (address.shipping.city) {
-                    if (!isValid(address.shipping.city)) return res.status(400).send({ status: false, message: "shipping city is in incorrect format" })
-                } else return res.status(400).send({ status: false, message: "address.shipping.city is required" })
-
-                if (address.shipping.pincode) {
-                    if (typeof address.shipping.pincode != "number") return res.status(400).send({ status: false, message: "shipping pincode is in incorrect format" })
-                    if (!isValidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
-                } else return res.status(400).send({ status: false, message: "address.shipping.pincode is required" })
-
-            } else return res.status(400).send({ status: false, message: "address.shipping is required" })
-
-
-
-
-            if (address.billing) {
-                if (address.billing.street) {
-                    if (!isValid(address.billing.street)) return res.status(400).send({ status: false, message: "billing street is in incorrect format" })
-                } else return res.status(400).send({ status: false, message: "address.billing.street is required" })
-
-                if (address.billing.city) {
-                    if (!isValid(address.billing.city)) return res.status(400).send({ status: false, message: "billing city is in incorrect format" })
-                } else return res.status(400).send({ status: false, message: "address.billing.city is required" })
-
-
-                if (address.billing.pincode) {
-                    if (typeof address.billing.pincode != "number") return res.status(400).send({ status: false, message: "billing pincode is in incorrect format" })
-                    if (!isValidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
-                }
-
-                else return res.status(400).send({ status: false, message: "address.billing.pincode is required" })
-
-            } else return res.status(400).send({ status: false, message: "address.billing is required" })
-
-        } else return res.status(400).send({ status: false, message: "address is required" })
-
-
-        
-        
-
+        //validation for billing address
+        if (billing) {
+            if (typeof billing !== "object") {
+                return res.status(400).send({ status: false, message: "billing Address is in wrong format" })
+            };
+            if (!billing.street || validator.isValid(billing.street)) {
+                return res.status(400).send({ status: false, message: "Street is required" })
+            }
+            if (billing.street && typeof billing.street != 'string') {
+                return res.status(400).send({ status: false, message: "Street is in wrong format" })
+            };
+            if (!billing.city || validator.isValid(billing.city)) {
+                return res.status(400).send({ status: false, message: "City is required" })
+            }
+            if (billing.city && typeof billing.city != 'string') {
+                return res.status(400).send({ status: false, message: "City is in wrong format" })
+            };
+            if (!validator.isvalidCity(billing.city)) {
+                return res.status(400).send({ status: false, message: "City name should only contain alphabets." });
+            }
+            if (!billing.pincode) {
+                return res.status(400).send({ status: false, message: "Pincode is required" })
+            }
+            if (validator.isValid(billing.pincode)) {
+                return res.status(400).send({ status: false, message: "Pincode is in wrong format" })
+            };
+            if (!validator.isValidPincode(billing.pincode)) {
+                return res.status(400).send({ status: false, message: "Please Provide valid Pincode " })
+            };
+        } else {
+            return res.status(400).send({ status: false, message: "billing address is required" })
+        }
         let checkEmail = await userModel.findOne({ email: data.email })
         if (checkEmail) {
             err.push("email is already register")
@@ -132,14 +154,14 @@ const createUser = async function (req, res) {
 
         
 
-        if (err.length > 0) {
-            return res.status(400).send({ status: false, msg: err.join(",") })
-        }
+        // if (err.length > 0) {
+        //     return res.status(400).send({ status: false, msg: err.join(",") })
+        // }
 
         const hashPassword = await bcrypt.hash("password", 10);
         req.body.password = hashPassword
 
-      //===  ==================AWS==========================
+    //  ===  ==================AWS==========================
       let profileImgUrl= await aws.uploadFile(files[0])
       data.profileImage=profileImgUrl
       //=====================================
@@ -147,7 +169,7 @@ const createUser = async function (req, res) {
         let createData = await userModel.create(data)
         return res.status(201).send({ status: true, data: createData })
     }
-    catch (error) { return res.status(500).send({ status: false, msg: error.message }) }
+    catch (error) { return res.status(500).send({ status: false, msg: error.message})}
 }
 //==========================================================================
 const login = async function(req,res){
@@ -164,7 +186,7 @@ const login = async function(req,res){
        return res.status(400).send({status:false,message : "email is not correct"})
     }
        let checkPassword = await userModel.findOne({password:password})
-       if(!checkPassword) {
+       if(checkPassword) {
        return res.status(400).send({status:false,message : "password is not correct"}) }
 
 
@@ -209,140 +231,6 @@ const getUser = async function (req, res) {
     }
 }
 //=========================================================================
-
-// const updateUser = async function(req,res){
-//     try{
-//         let userId = req.params.userId
-//         let data = req.body
-//         let {fname, lname, email, phone, password ,profileImage,address} = data
-//        // let update = {}
-//         // ------------ validation start -------------------
-//         if(fname){
-//             if(!isValid(fname)){
-//                 res.status(400).send({ status:false, message: ' fname must be present' });
-//             }
-//             if(!checkname(fname)){
-//                 return res.status(400).send({ status:false, message: 'plese provide valid  fname' });
-//             }
-
-//            // update.fname = fname
-//         }
-//         if(lname){
-//             if(!isValid(lname)){
-//                 res.status(400).send({ status:false, message: 'lname  must be present ' });
-//             }
-//             if(!checkname(lname)){
-//                 return res.status(400).send({ status:false, message: ' plese provide valid lname' });
-//             }
-//             //update.lname = lname
-//         }
-//         if(email){
-//             if(!isValid(email)){
-//                 res.status(400).send({ status:false, message: ' email must be present ' });
-//             }
-//             if(isValidEmail(email)){
-//                 return res.status(400).send({ status:false, message: 'plese provide valid email ' });
-//             }}
-//             if(password){
-//                 if(!isValid(password)){
-//                  return   res.status(400).send({ status:false, message: 'Invalid password' });
-//                 }
-//                 if(!checkPassword(password)){
-//                     return res.status(400).send({status:false, message: 'plz provide valid password'})
-//                 }
-//                 const hashPassword = await bcrypt.hash("password", 10);
-//                 req.body.password = hashPassword
-        
-//             }
-//             if(profileImage){
-//                 if(!isValid(profileImage)){
-//                     res.status(400).send({ status:false, message: 'Invalid profileImage' });
-//                 }
-
-//                // update.profileImage = profileImage
-//             }
-//             address = JSON.parse(address)
-//             if (address) {
-//                 if (typeof address != "object") return res.status(400).send({ status: false, message: "address is in incorrect format" })
-    
-//                 //*SHIPPING*    
-//                 if (address.shipping) {
-//                     if (address.shipping.street) {
-//                         if (!isValid(address.shipping.street)) return res.status(400).send({ status: false, message: "shipping street is in incorrect format" })
-//                     } else return res.status(400).send({ status: false, message: "address.shipping.street is required" })
-    
-//                     if (address.shipping.city) {
-//                         if (!isValid(address.shipping.city)) return res.status(400).send({ status: false, message: "shipping city is in incorrect format" })
-//                     } else return res.status(400).send({ status: false, message: "address.shipping.city is required" })
-    
-//                     if (address.shipping.pincode) {
-//                         if (typeof address.shipping.pincode != "number") return res.status(400).send({ status: false, message: "shipping pincode is in incorrect format" })
-//                         if (!isValidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
-//                     } else return res.status(400).send({ status: false, message: "address.shipping.pincode is required" })
-    
-//                 } else return res.status(400).send({ status: false, message: "address.shipping is required" })
-    
-    
-    
-    
-//                 if (address.billing) {
-//                     if (address.billing.street) {
-//                         if (!isValid(address.billing.street)) return res.status(400).send({ status: false, message: "billing street is in incorrect format" })
-//                     } else return res.status(400).send({ status: false, message: "address.billing.street is required" })
-    
-//                     if (address.billing.city) {
-//                         if (!isValid(address.billing.city)) return res.status(400).send({ status: false, message: "billing city is in incorrect format" })
-//                     } else return res.status(400).send({ status: false, message: "address.billing.city is required" })
-    
-    
-//                     if (address.billing.pincode) {
-//                         if (typeof address.billing.pincode != "number") return res.status(400).send({ status: false, message: "billing pincode is in incorrect format" })
-//                         if (!isValidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
-//                     }
-    
-//                     else return res.status(400).send({ status: false, message: "address.billing.pincode is required" })
-    
-//                 } else return res.status(400).send({ status: false, message: "address.billing is required" })
-    
-//             } else return res.status(400).send({ status: false, message: "address is required" })
-    
-
-
-
-//             existEmail = await userModel.findOne({email: email});
-//             if(existEmail){
-//                 res.status(400).send({ status:false, message: 'Email already present' });
-//             }
-//           //  update.email = email
-//         }
-        
-//         if(phone){
-//             if(!isValid(phone)){
-//                 res.status(404).send({ status:false, message: 'Invalid phone' });
-//             }
-//             existPhone = await userModel.findOne({ phone: phone });
-//             if(existPhone){
-//                 res.status(400).send({ status:false, message: 'phone number already present' });
-//             }
-//            // update.phone = phone
-//         }
-       
-//            // update.password = password
-        
-       
-    
-
-//         // -------------------- end -------------------
-//         let updatedUser = await bookModel.findByIdAndUpdate(userId,{$set:update},{new:true})
-//         res.status(200).send({ status: true,message: 'Success',data:updatedUser})
-//     }
-//     catch(err){
-//        return res.status(500).send({status:false,message: err.message})
-//     }
-
-
-
-
 
 let updateUser = async function (req, res) {
     try {
