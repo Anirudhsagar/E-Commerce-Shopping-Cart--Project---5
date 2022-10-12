@@ -32,6 +32,13 @@ const isValid = function (value) {
     var nameRegex = /^[A-Z a-z]+$/;
     return nameRegex.test(str);
   }
+
+
+  const isValidString = (String) => {
+    return /\d/.test(String)
+  }
+
+
   const objectid = /^[0-9a-fA-F]{24}$/
   module.exports = {
     isValid,
@@ -40,5 +47,6 @@ const isValid = function (value) {
     isValidPincode,
     checkPassword,
     checkname,
+    isValidString
    
   };

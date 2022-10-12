@@ -450,7 +450,7 @@ let updateUser = async function (req, res) {
                 if (validator.isValid(billing.city)) {
                     return res.status(400).send({ status: false, message: "billing city is required" });
                 }
-                if (!validator.isvalidCity(billing.city)) {
+                if (!validator.isValidCity(billing.city)) {
                     return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
                 }
 
