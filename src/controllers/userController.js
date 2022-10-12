@@ -181,12 +181,12 @@ const login = async function(req,res){
        res.status(400).send({status:false, message:"Credential must be present"})
 
        let user = await userModel.findOne({email:email})
-       console.log(user)
+       //console.log(user)
        if(!user){
        return res.status(400).send({status:false,message : "email is not correct"})
     }
        let checkPassword = await userModel.findOne({password:password})
-       if(checkPassword) {
+       if(!checkPassword) {
        return res.status(400).send({status:false,message : "password is not correct"}) }
 
 
@@ -240,31 +240,31 @@ let updateUser = async function (req, res) {
 
         let { fname, lname, email, password, phone } = data;
         //validating the request body
-        if (isValidBody(data)) return res.status(400).send({ status: false, message: "Enter details to update your account data" });
+        if (validator.isValidBody(data)) return res.status(400).send({ status: false, message: "Enter details to update your account data" });
 
         if (typeof fname == 'string') {
             //checking for firstName
-            if (isValid(fname)) return res.status(400).send({ status: false, message: "First name should not be an empty string" });
+            if (validator.isValid(fname)) return res.status(400).send({ status: false, message: "First name should not be an empty string" });
 
             //validating firstName
-            if (isValidString(fname)) return res.status(400).send({ status: false, message: "Enter a valid First name and should not contains numbers" });
+            if (validator.isValidString(fname)) return res.status(400).send({ status: false, message: "Enter a valid First name and should not contains numbers" });
         }
         if (typeof lname == 'string') {
             //checking for firstName
-            if (isValid(lname)) return res.status(400).send({ status: false, message: "Last name should not be an empty string" });
+            if (validator.isValid(lname)) return res.status(400).send({ status: false, message: "Last name should not be an empty string" });
 
             //validating firstName
-            if (isValidString(lname)) return res.status(400).send({ status: false, message: "Enter a valid Last name and should not contains numbers" });
+            if (validator.isValidString(lname)) return res.status(400).send({ status: false, message: "Enter a valid Last name and should not contains numbers" });
         }
         //validating user email-id
-        if (data.email && (!isValidEmail(email))) return res.status(400).send({ status: false, message: "Please Enter a valid Email-id" });
+        if (data.email && (!validator.isValidEmail(email))) return res.status(400).send({ status: false, message: "Please Enter a valid Email-id" });
 
         //checking if email already exist or not
         let duplicateEmail = await userModel.findOne({ email: email })
-        if (duplicateEmail) return res.status(400).send({ status: false, message: "Email already exist" });
+        if (duplicateEmail) return res.status(400).send({ status: false, message: "Email already exist" }); 
 
         //validating user phone number
-        if (data.phone && (!phoneNumber(phone))) return res.status(400).send({ status: false, message: "Please Enter a valid Phone number" });
+        if (data.phone && (!validator.isValidPhone(phone))) return res.status(400).send({ status: false, message: "Please Enter a valid Phone number" });
 
         //checking if email already exist or not
         let duplicatePhone = await userModel.findOne({ phone: phone })
@@ -272,7 +272,7 @@ let updateUser = async function (req, res) {
 
         if (data.password || typeof password == 'string') {
             //validating user password
-            if (!checkPassword(password)) return res.status(400).send({ status: false, message: "Password should be between 8 and 15 character" });
+            if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: "Password should be between 8 and 15 character" });
 
             //hashing password with bcrypt
         const hashPassword = await bcrypt.hash("password", 10);
@@ -288,7 +288,7 @@ let updateUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Please enter a valid address" })
         } else if (data.address) {
 
-            if (isValid(data.address)) {
+            if (validator.isValid(data.address)) {
                 return res.status(400).send({ status: false, message: "Please provide address field" });
             }
             data.address = JSON.parse(data.address);
@@ -311,7 +311,7 @@ let updateUser = async function (req, res) {
                     return res.status(400).send({ status: false, message: "shipping city is required" });
                 }
 
-                if (!validator.isValidCity(shipping.city)) {
+                if (!validator.isvalidCity(shipping.city)) {
                     return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
                 }
 
@@ -338,7 +338,7 @@ let updateUser = async function (req, res) {
                 if (validator.isValid(billing.city)) {
                     return res.status(400).send({ status: false, message: "billing city is required" });
                 }
-                if (!validator.isValidCity(billing.city)) {
+                if (!validator.isvalidCity(billing.city)) {
                     return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
                 }
 
