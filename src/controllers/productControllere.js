@@ -13,7 +13,7 @@ const createProduct = async function (req, res) {
 
         if (!validator.isValid)
 
-            let { title, description, price, currencyId, currencyFormat, productImage, isFreeShipping, } = data
+            let { title, description, price, currencyId, currencyFormat, availableSizes,installments, isFreeShipping,style } = data
 
         // i
         const titlepresent = await productModels.findOne({ title: title })
@@ -52,6 +52,28 @@ const createProduct = async function (req, res) {
         if(validator.isValid1(productImage)){
             return res.status(400).send({status:false ,msg:"currencyId is plz provide valid"})
         }
+
+        if(!availableSizes){
+            let availableSizes = availableSizes.toUpperCase().split(" ,")
+            return res.status(400).send({status:false ,msg:"availableSizes is mandetory"})
+        }
+        if(!isValidSize(availableSizes)){
+            return res.status(400).send({status:false ,msg:"size note availevel"})
+        }
+
+        if(!currencyFormat){
+            let availableSizes = availableSizes.toUpperCase().split(" ,")
+            return res.status(400).send({status:false ,msg:"currencyFormat is mandetory"})
+        }
+        if(!(currencyFormat != "₹")){
+            return res.status(400).send({status:false ,msg:"currencyFormat must should be ₹ "})
+        }
+
+       
+
+        }
+        
+
 
     }
 
