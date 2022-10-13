@@ -10,7 +10,11 @@ const isValid = (value) => {
 const isValidBody = (reqBody) => {
   return Object.keys(reqBody).length === 0;
 }
-
+const isValid1 = (value) => {
+  if (typeof value === "undefined" || typeof value === "null") return false;
+  if (typeof value === "string" && value.trim().length === 0) return false;
+ return true
+}
 const isValidPassword = (password) => {
     if (password.length > 7 && password.length < 16) return true
 }
@@ -41,8 +45,13 @@ const isValidString = (String) => {
 const isvalidCity = function (city){
     return /^[a-zA-z',.\s-]{1,25}$/.test(city)
   }
+  const isValidFiles= (reqBody) =>{
+    if(files && files.length>0){
+      return true
+    }
+  }
   
-module.exports = {isValid,isValidBody,isValidPassword,isValidObjectId,isValidPincode,isValidPhone,isValidEmail,isvalidCity,isValidString,objectid}
+module.exports = {isValid,isValidBody,isValidPassword,isValidObjectId,isValidPincode,isValidPhone,isValidEmail,isvalidCity,isValidString,objectid,isValid1}
 
 
 

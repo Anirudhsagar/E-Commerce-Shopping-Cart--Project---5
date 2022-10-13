@@ -142,15 +142,15 @@ const createUser = async (req, res) => {
         } else {
             return res.status(400).send({ status: false, message: "billing address is required" })
         }
-        let checkEmail = await userModel.findOne({ email: data.email })
-        if (checkEmail) {
-            err.push("email is already register")
-        }
+        // let checkEmail = await userModel.findOne({ email: data.email })
+        // if (checkEmail) {
+        //     err.push("email is already register")
+        // }
 
-        let checkPhone = await userModel.findOne({ phone: data.phone })
-        if (checkPhone) {
-            err.push("phone  is already register")
-        }
+        // let checkPhone = await userModel.findOne({ phone: data.phone })
+        // if (checkPhone) {
+        //     err.push("phone  is already register")
+        // }
 
         
 
