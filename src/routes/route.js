@@ -19,6 +19,9 @@ router.post("/products", productController.createProduct)
 
 router.put('/products/:productId',productController.updateProduct);
 
+router.delete('/products/:productId', productController.deleteProduct)
+
+
 //Error Handing
 router.all('/*', (req, res) => {
     res.status(404).send({ status: false, message: "URL Not Found" })

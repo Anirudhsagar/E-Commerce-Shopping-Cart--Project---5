@@ -213,11 +213,28 @@ const updateProduct = async (req,res) => {
         }
 
         //--------------------if we want to available sizes-------------------
-        if (availableSizes) {
-            let size = ["S", "XS", "M", "X", "L", "XXL", "XL"];
-            if (!size.includes(availableSizes))
-                return res.status(400).send({ status: false, msg: "Invalid size,select from 'S','XS',M','X','L','XXL','XL'" });
+        // if (availableSizes) {
+        //     let size = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+        //     if (!size.includes(availableSizes))
+        //         return res.status(400).send({ status: false, msg: "Invalid size,select from 'S','XS',M','X','L','XXL','XL'" });
+        // }
+
+
+
+        availableSizes = productData.availableSizes.split(",")
+
+        for (let i = 0; i < availableSizes.length; i++) {
+
+
+            if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(availableSizes[i])) {
+
+                return res.status(400).send({ status: false, msg: "size note available" })
+            }
+            productData.availableSizes = availableSizes
+
         }
+
+
 
         let UpdateProductData = await productModels.findByIdAndUpdate({ _id: productId }, productData, { new: true })
         return res.status(201).send({ status: true, message: "product Updated", productData: UpdateProductData })
@@ -230,4 +247,26 @@ const updateProduct = async (req,res) => {
 
 
 
-module.exports = { updateProduct, createProduct }
+//  ============================= DELETE ================================
+
+const deleteProduct = async function (req, res) {
+    try {
+        const productId = req.params.productId;
+
+        
+        if (!isValidObjectId(productId))
+            return res.status(400).send({ status: false, message: "Please provide valid format of productId" });
+
+    
+        const deletedProduct = await productModels.findOneAndUpdate({ _id: productId, isDeleted: false }, { isDeleted: true, deletedAt: Date.now() }, { new: true });
+        if (!deletedProduct)
+            return res.status(404).send({ status: false, message: `No product is found with this Id: ${productId}, or it must be deleted` })
+
+        return res.status(200).send({ status: true, message: "Success", data: "Product is deleted successfully" })
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
+
+
+}
+module.exports = { updateProduct, createProduct, deleteProduct }
