@@ -171,33 +171,18 @@ const updateProduct = async (req,res) => {
      
 
         // db call
-        // if (title) {
-        //     if (!validator.isValid1(title))  { return res.status(400).send({ status: false, message: "wrong title" }) }
-        // }
-        // let duplicateTitle =await productModels.findOne({
-        //     title:title
-        // })
-        // if (duplicateTitle)  { return res.status(400).send({ status: false, message: "title is already present" }) }
-
-        if (!title) {
-            return res.status(400).send({ status: false, msg: "title is mandatory" })
-
-
+        if (title) {
+            if (!validator.isValid1(title))  { return res.status(400).send({ status: false, message: "wrong title" }) }
         }
-        const titles = await productModels.findOne({ title: title })
-        if (titles) {
-            return res.status(400).send({ status: false, msg: "title is already exist" })
+        let duplicateTitle =await productModels.findOne({
+            title:title
+        })
+        if (duplicateTitle) 
+        // if (duplicateTitle.title.toUpperCase()==title.toUpperCase().trim())
+         { return res.status(400).send({ status: false, message: "title is already present" }) }
 
 
-
-        // title validation
-//         if (data.title || data.title == "") {
-//             if (validator.isValid(data.title)) { return res.status(400).send({ status: false, message: "title should not be empty String" }) }
-//             //Check the title for duplicate
-//             let duplicateTitle = await productModels.findOne({ title: data.title })
-//             if (duplicateTitle) { return res.status(400).send({ status: false, message: "title is already present in database"})}
-// }
-
+ 
         // ---------------- description -------------------------
 
         if (description) {
@@ -239,7 +224,7 @@ const updateProduct = async (req,res) => {
 
 
     } catch (error) {
-        
+        return res.status(500).send({ status: false, msg: error.message })
     }
 }
 
