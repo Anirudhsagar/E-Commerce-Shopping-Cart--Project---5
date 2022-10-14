@@ -15,6 +15,20 @@ const isValid1 = (value) => {
   if (typeof value === "string" && value.trim().length === 0) return false;
  return true
 }
+
+const isValidName = function (name) {
+  const nameRegex = /^[a-zA-Z ]{2,30}$/
+  return nameRegex.test(name)
+}
+
+
+
+const isValidNumber = function (number) {
+  var re = /^\d{0,8}[.]?\d{1,4}$/;
+  return re.test(number);
+}
+
+
 const isValidPassword = (password) => {
     if (password.length > 7 && password.length < 16) return true
 }
@@ -50,6 +64,12 @@ const isvalidCity = function (city){
       return true
     }
   }
+
+  const isValidProfile = function (profile) {
+    const profileRegex = /[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$/
+    return profileRegex.test(profile)
+}
+
   const isValidPrice = (price) => {
     return /^[1-9]\d{0,7}(?:\.\d{1,2})?$/.test(price);
   }
@@ -57,7 +77,7 @@ const isvalidCity = function (city){
     return ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL'].includes(sizes);
   }
   
-module.exports = {isValid,isValidBody,isValidPassword,isValidObjectId,isValidPincode,isValidPhone,isValidEmail,isvalidCity,isValidString,objectid,isValid1 ,isValidPrice,isValidSize}
+module.exports = {isValid,isValidBody,isValidPassword,isValidObjectId,isValidPincode, isValidName ,  isValidProfile  , isValidNumber   ,   isValidFiles  ,isValidPhone,     isValidEmail,   isvalidCity   ,isValidString,objectid,isValid1 ,isValidPrice,isValidSize}
 
 
 
