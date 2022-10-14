@@ -171,9 +171,32 @@ const updateProduct = async (req,res) => {
      
 
         // db call
-        if (productData.title) {
-            if (!validator.isValidName(productData.title))  { return res.status(400).send({ status: false, message: "wrong title" }) }
+        // if (title) {
+        //     if (!validator.isValid1(title))  { return res.status(400).send({ status: false, message: "wrong title" }) }
+        // }
+        // let duplicateTitle =await productModels.findOne({
+        //     title:title
+        // })
+        // if (duplicateTitle)  { return res.status(400).send({ status: false, message: "title is already present" }) }
+
+        if (!title) {
+            return res.status(400).send({ status: false, msg: "title is mandatory" })
+
+
         }
+        const titles = await productModels.findOne({ title: title })
+        if (titles) {
+            return res.status(400).send({ status: false, msg: "title is already exist" })
+
+
+
+        // title validation
+//         if (data.title || data.title == "") {
+//             if (validator.isValid(data.title)) { return res.status(400).send({ status: false, message: "title should not be empty String" }) }
+//             //Check the title for duplicate
+//             let duplicateTitle = await productModels.findOne({ title: data.title })
+//             if (duplicateTitle) { return res.status(400).send({ status: false, message: "title is already present in database"})}
+// }
 
         // ---------------- description -------------------------
 
@@ -181,11 +204,7 @@ const updateProduct = async (req,res) => {
             if (!validator.isValidName(description))  { return res.status(400).send({ status: false, message: "wrong description" }) }
         }
 
-        let duplicateTitle =await productModels.findOne({
-            title:productData.title
-        })
-        if (duplicateTitle)  { return res.status(400).send({ status: false, message: "title is already present" }) }
-
+       
         // ------------------ price --------------------------
 
         if (price) {
