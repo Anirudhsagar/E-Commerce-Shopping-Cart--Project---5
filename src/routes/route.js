@@ -11,7 +11,13 @@ router.get("/user/:userId/profile",userController.getUser)
 
 router.put("/user/:userId/profile",authentication,authorization,userController.updateUser)
 
+
+
+//--------------------for products--------------------
+
 router.post("/products", productController.createProduct)
+
+router.put('/products/:productId', productController.updateProduct);
 
 //Error Handing
 router.all('/*', (req, res) => {
