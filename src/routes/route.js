@@ -17,6 +17,10 @@ router.put("/user/:userId/profile",authentication,authorization,userController.u
 
 router.post("/products", productController.createProduct)
 
+router.get("/products", productController.getProduct)
+
+router.get("/products/:productId", productController.getProductById)
+
 router.put('/products/:productId',productController.updateProduct);
 
 router.delete('/products/:productId', productController.deleteProduct)

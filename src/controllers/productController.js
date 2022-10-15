@@ -1,6 +1,7 @@
 const productModels = require('../models/productModel')
 const validator = require("../validations/validator")
 const aws = require("../AWS/aws")
+const mongoose = require("mongoose");
 
 // ====================== create product =====================
 
@@ -144,6 +145,62 @@ const createProduct = async function (req, res) {
     }
 }
 
+// -------------------- GET PRODUCT---------------------
+
+
+const getProduct = async function(req,res) {
+    try{
+        let data = req.query
+        let filter ={isDeleted:false};
+        let{size,name,priceGreaterThan,priceLessThan}= data;
+        if(size){
+            filter.availableSizes = size
+        }
+        if(name){
+            filter.title = name
+        }
+        console.log(filter)
+        if(priceGreaterThan && priceLessThan){
+            let price = {$gt:priceGreaterThan,$lt:priceLessThan}
+            filter.price = price
+        }
+        if(priceGreaterThan && !(priceLessThan)){
+            let Price={$gt:priceGreaterThan}
+            filter.price= Price
+        }
+        if(priceLessThan&&!(priceGreaterThan)){
+            let Price={$lt:priceLessThan}
+            filter.price= Price
+        }
+        let product = await productModels.find(filter).sort({price:1})
+        
+        if(product.length == 0) return res.status(404).send({status:false,message:'No such product exist'})
+        // finalProduct = product.sort(function (a,b){return a.price.localeCompare(b.price);})
+         res.status(200).send({status:true,message:'Success',data:product})
+        
+
+    }catch(err) { return res.status(500).send({status: false, message: err.message})}
+}
+
+// -------------------- GET PRODUCT------------------------------
+
+
+
+const getProductById = async function (req, res) {
+    try {
+        let id = req.params.productId
+        if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
+        if (!mongoose.isValidObjectId(id)) return res.status(400).send({ status: false, message: "invalid productId" })
+        const foundProduct = await productModels.findOne({ _id: id})
+        if (!foundProduct) return res.status(404).send({ status: false, message: "product not found" })
+
+        return res.status(200).send({ status: true, message: "Product details", data: foundProduct })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+
 
 // -------------------- UPDATE PRODUCT---------------------
 
@@ -269,4 +326,4 @@ const deleteProduct = async function (req, res) {
 
 
 }
-module.exports = { updateProduct, createProduct, deleteProduct }
+module.exports = { updateProduct, createProduct,getProductById,getProduct, deleteProduct }
