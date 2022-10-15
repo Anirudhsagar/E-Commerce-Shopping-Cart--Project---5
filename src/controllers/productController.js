@@ -216,6 +216,7 @@ const updateProduct = async (req,res) => {
         if (!checkProduct)  { return res.status(404).send({ status: false, message: "product not found" }) }
 
         let productData = req.body
+        let files = req.files
         let { title, description, price, isFreeShipping, productImage, style, availableSizes } = productData
 
 
@@ -260,10 +261,11 @@ const updateProduct = async (req,res) => {
         }
 
         //--------------------if we want to update address-------------------
-        if (productImage) {
-            if (!validator.isValidProfile(productImage)) { return res.status(400).send({ status: false, message: "productImage is missing" }) }
-        }
+        if (files) {
+            let productImgUrl = await aws.uploadFile(files[0])
+            productData.productImage = productImgUrl
 
+        }
         //--------------------if we want to style-------------------
         if (style) {
             if (!validator.isValidName(style)) { return res.status(400).send({ status: false, message: "style is missing" }) }
@@ -277,7 +279,7 @@ const updateProduct = async (req,res) => {
         // }
 
 
-
+if(productData.availableSizes){
         availableSizes = productData.availableSizes.split(",")
 
         for (let i = 0; i < availableSizes.length; i++) {
@@ -290,7 +292,7 @@ const updateProduct = async (req,res) => {
             productData.availableSizes = availableSizes
 
         }
-
+    }
 
 
         let UpdateProductData = await productModels.findByIdAndUpdate({ _id: productId }, productData, { new: true })
@@ -311,7 +313,7 @@ const deleteProduct = async function (req, res) {
         const productId = req.params.productId;
 
         
-        if (!isValidObjectId(productId))
+        if (!validator.isValidObjectId(productId))
             return res.status(400).send({ status: false, message: "Please provide valid format of productId" });
 
     
