@@ -116,18 +116,13 @@ const createProduct = async function (req, res) {
 
 
 
-        //==============================================================
-        if (data.productImage) {
-            return res.status(400).send({ status: false, msg: "productImage is only file accept" })
-        }
-
-        if (!files) {
+        if (files.length==0) {
             return res.status(400).send({ status: false, msg: "productImage is mandetory" })
         }
-
+if(files.length>0){
         let productImgUrl = await aws.uploadFile(files[0])
         data.productImage = productImgUrl
-
+}
 
 
         //=========================================================
