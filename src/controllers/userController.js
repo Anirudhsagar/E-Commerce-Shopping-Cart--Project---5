@@ -290,9 +290,9 @@ let updateUser = async function (req, res) {
 
         }
         //aws
-        if (files && files.length != 0) {
-            let profileImgUrl = await aws.uploadFile(files[0]);
-            data.profileImage = profileImgUrl;
+        if(files.length>0){
+            let profileImgUrl = await aws.uploadFile(files[0])
+            data.profileImage = profileImgUrl
         }
         if (data.address === "") {
             return res.status(400).send({ status: false, message: "Please enter a valid address" })

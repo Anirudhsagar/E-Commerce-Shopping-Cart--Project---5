@@ -256,11 +256,13 @@ const updateProduct = async (req,res) => {
         }
 
         //--------------------if we want to update address-------------------
-        if (files) {
-            let productImgUrl = await aws.uploadFile(files[0])
-            productData.productImage = productImgUrl
+       
+if(files.length>0){
+        let productImgUrl = await aws.uploadFile(files[0])
+        data.productImage = productImgUrl
+}
 
-        }
+
         //--------------------if we want to style-------------------
         if (style) {
             if (!validator.isValidName(style)) { return res.status(400).send({ status: false, message: "style is missing" }) }
