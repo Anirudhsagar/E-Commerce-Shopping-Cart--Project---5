@@ -167,9 +167,11 @@ const createUser = async (req, res) => {
         return res.status(400).send({ status: false, msg: "productImage is mandetory" })
     }
 if(files.length>0){
-    let productImgUrl = await aws.uploadFile(files[0])
-    data.productImage = productImgUrl
+    let profileImgUrl = await aws.uploadFile(files[0])
+    data.profileImage = profileImgUrl
 }
+
+
 
 
       //=====================================
