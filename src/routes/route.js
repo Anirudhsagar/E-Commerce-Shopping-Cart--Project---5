@@ -24,7 +24,16 @@ router.get("/products/:productId", productController.getProductById)
 router.put('/products/:productId',productController.updateProduct);
 
 router.delete('/products/:productId', productController.deleteProduct)
+  
+// -------------------- for cart-------------------------
 
+router.post('/users/:userId/cart', authentication, createCart);
+
+router.put('/users/:userId/cart', authentication, updateCart);
+
+router.get('/users/:userId/cart', authentication, getCart);
+
+router.delete('/users/:userId/cart', authentication, deleteCart)
 
 //Error Handing
 router.all('/*', (req, res) => {
