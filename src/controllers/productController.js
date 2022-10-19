@@ -212,7 +212,7 @@ const updateProduct = async (req,res) => {
 
         let productData = req.body
         let files = req.files
-        let { title, description, price, isFreeShipping, productImage, style, availableSizes } = productData
+        let { title, description, price, isFreeShipping, style, availableSizes } = productData
 
 
         //  ---------------------- validation for request body ----------------

@@ -27,13 +27,13 @@ router.delete('/products/:productId', productController.deleteProduct)
   
 // -------------------- for cart-------------------------
 
-router.post('/users/:userId/cart', authentication,cartController.CreateCart);
+router.post('/users/:userId/cart',authentication,authorization,cartController.CreateCart);
 
-// router.put('/users/:userId/cart', authentication,cartController.updateCart);
+router.put('/users/:userId/cart',authentication,authorization,cartController.updateCart);
 
-router.get('/users/:userId/cart', authentication,cartController.getCart);
+router.get('/users/:userId/cart',authentication,authorization,cartController.getCart);
 
-router.delete('/users/:userId/cart', authentication,cartController.deleteCart)
+router.delete('/users/:userId/cart',authentication,authorization,cartController.deleteCart)
 
 //Error Handing
 router.all('/*', (req, res) => {
