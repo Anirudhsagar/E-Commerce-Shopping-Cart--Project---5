@@ -183,7 +183,7 @@ const CreateCart = async function (req, res) {
                   { userId: userIdByparam },
                   { $addToSet: { items: addItems }, $inc: { totalItems: 1, totalPrice: ((findProduct.price) * 1) } },
                   { new: true, upsert: true })
-              return res.status(201).send({ status: true, message: "product added to the cart successfully", data: saveData })
+              return res.status(201).send({ status: true, message: "Cart is create Successfully", data: saveData })
           }
       }
   } catch (error) {
@@ -301,7 +301,7 @@ try {
   let findCart = await cartModel.findOne({ userId: userId });
 
   if (findCart.items.length == 0) {
-      return res.status(400).send({ status: false, message: "Cart is already empty" });
+      return res.status(204).send({ status: false, message: "Cart is already empty" });
   }
       await cartModel.updateOne({ _id: findCart._id },
       { items: [], totalPrice: 0, totalItems: 0 });

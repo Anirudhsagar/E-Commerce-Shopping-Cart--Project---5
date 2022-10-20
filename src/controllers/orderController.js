@@ -115,7 +115,7 @@ const updateOrder = async function (req, res) {
         if (!findUser)
             return res.status(404).send({ status: false, message: "User details not found " });
 
-        const findOrder = await OrderModel.findOne({ _id: orderId, userId: userId })
+        const findOrder = await orderModel.findOne({ _id: orderId, userId: userId })
 
         if (!findOrder)
             return res.status(404).send({ status: false, message: "Order details is not found"  })
@@ -150,7 +150,7 @@ const updateOrder = async function (req, res) {
             if (status == 'cancelled') {
                 if (findOrder.status == 'pending') {
 
-                    const updateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
 
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
@@ -171,7 +171,7 @@ const updateOrder = async function (req, res) {
             if (status == 'completed') {
                 if (findOrder.status == 'pending') {
 
-                    const updateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
 
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
