@@ -4,6 +4,15 @@ const userController= require("../controllers/userController")
 const{authentication,authorization} = require("../middlewares/auth");
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const orderController = require("../controllers/orderController");
+
+
+
+
+
+
+// =================== for User ==================================
+
 router.post("/register",userController.createUser)
 router.post("/login",userController.login)
 
@@ -34,6 +43,22 @@ router.put('/users/:userId/cart',authentication,authorization,cartController.upd
 router.get('/users/:userId/cart',authentication,authorization,cartController.getCart);
 
 router.delete('/users/:userId/cart',authentication,authorization,cartController.deleteCart)
+
+
+
+// ========================== order ===============================
+
+router.post('/users/:userId/orders', orderController.createOrder );
+
+router.put('/users/:userId/orders', orderController.updateOrder );
+
+
+
+
+
+
+
+
 
 //Error Handing
 router.all('/*', (req, res) => {

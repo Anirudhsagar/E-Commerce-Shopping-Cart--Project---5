@@ -97,30 +97,34 @@ const updateCart = async function (req, res) {
       if (!isValidObjectId(userId)) {
         res.status(400).send({ status: false, message: "invalid userId" })
       }
+
+      // =====================================================
       ///authorization
       // if (userId !== req.userId) {
       //   return res.status(403).send({ status: false, message: " User Authorization fail" })
       // }///if empty body
-      if (!valiisValidBody(data)) {
+
+      // ===================================================
+      if (!validator.isValidBody(data)) {
         return res.status(400).send({ status: false, message: "please provide data to be update" })
   
       }
       /////cartId validation
-      if (!isValid(cartId)) {
+      if (!validator.isValid1(cartId)) {
         return res.status(400).send({ status: false, message: "Please provide a cart id" })
       }
       if (!isValidObjectId(cartId)) {
         return res.status(400).send({ status: false, message: "Invalid cartId" })
       }
-      /////productId validation
-    //   if (!isValid(productId)) {
-    //     return res.status(400).send({ status: false, message: "Please provide productId" })
-    //   }
+      ///productId validation
+      if (!validator.isValid1(productId)) {
+        return res.status(400).send({ status: false, message: "Please provide productId" })
+      }
       if (!isValidObjectId(productId)) {
         return res.status(400).send({ status: false, message: "Invalid product Id" })
       }
       //////removeProduct validation
-      if (!isValid(removeProduct)) {
+      if (!validator.isValid1(removeProduct)) {
         return res.status(400).send({ stataus: false, message: "please provide removeProduct " })
       }
       if (!/^(0|1)$/.test(removeProduct)) {
