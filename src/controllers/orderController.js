@@ -1,10 +1,91 @@
 
-const OrderModel = require('../models/orderModel.js');
-const UserModel = require('../models/userModel.js');
-const CartModel = require('../models/cartModel.js')
-
-const { isValidObjectId } = require('mongoose');
 const validator = require("../validations/validator")
+const cartModel = require("../models/cartModel")
+const userModel = require("../models/userModel")
+const orderModel = require("../models/orderModel")
+const { isValidBody, isValidObjectId, isValid1 } = require("../validations/validator");
+
+const createOrder = async function (req, res) {
+    try {
+        let userId = req.params.userId;
+        let data = req.body;
+        let { cartId, cancellable, status } = data;
+
+        if (!isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Invalid userId" })
+        }
+        let existUser = await userModel.findById(userId);
+        if (!existUser) {
+            return res.status(404).send({ status: false, message: "User is not exist or already deleted" })
+        }
+        if (!isValid1(data)) {
+            return res.status(400).send({ status: false, message: "Please give some data to create an order" })
+        }
+        if (!isValidBody(cartId)) {
+            return res.status(400).send({ status: false, message: "Please provide cartId" })
+        }
+        if (!isValidObjectId(cartId)) {
+            return res.status(400).send({ status: false, message: "Invalid cartId" })
+        }
+        let existCart = await cartModel.findOne({ _id: cartId, userId: userId })
+        if (!existCart) {
+            return res.status(404).send({ status: false, message: "given Cart is not exist for this particuler user" })
+        }
+        let itemArr = existCart.items
+        if (itemArr.length == 0) {
+            return res.status(400).send({ status: false, message: "Cart Is empty" })
+        }
+        let total = 0;
+        for (let i of itemArr) {
+            total = total + i.quantity
+        }
+        let orderDetails = {
+            userId: userId,
+            items: itemArr,
+            totalPrice: existCart.totalPrice,
+            totalItems: existCart.totalItems,
+            totalQuantity: total,
+
+        }
+        if (cancellable) {
+            if (!isValidBody(cancellable)) {
+                return res.status(400).send({ status: false, message: "please provide cancelation property " })
+            }
+            var cancel = cancellable.toString().trim().toLowerCase();
+            if (!/^(true|false)$/.test(cancel)) {
+                return res.status(400).send({ status: false, message: "cancellable should be a boolean value" })
+            }
+        }
+        orderDetails.cancellable = cancel;
+        if (status) {
+            if (!isValidBody(status)) {
+                return res.status(400).send({ status: false, message: "please provide status property" })
+            }
+            var stat = status.trim().toLowerCase();
+            if (!['pending', 'completed', 'cancelled'].includes(stat)) {
+                return res.status(400).send({ status: false, message: "Status should be 'pending','completed','cancelled'" })
+            }
+        }
+        orderDetails.status = stat
+
+        let orderCreate = await orderModel.create(orderDetails)
+        existCart.items = []
+        existCart.totalItems = 0
+        existCart.totalPrice = 0
+        existCart.save()
+
+        return res.status(201).send({ status: true, message: "Success", data: orderCreate })
+
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+
+
+// ================================= Update ===============================
 
 
 const updateOrder = async function (req, res) {
@@ -28,13 +109,14 @@ const updateOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: "The given orderId is not in proper format" });
 
         
-        const findUser = await UserModel.findOne({ _id: userId });
+
+        const findUser = await userModel.findOne({ _id: userId });
+
         if (!findUser)
             return res.status(404).send({ status: false, message: "User details not found " });
 
-
-        
         const findOrder = await OrderModel.findOne({ _id: orderId, userId: userId })
+
         if (!findOrder)
             return res.status(404).send({ status: false, message: "Order details is not found"  })
 
@@ -51,7 +133,10 @@ const updateOrder = async function (req, res) {
 
             if (status == 'completed') {
                 if (findOrder.status == 'pending') {
-                    const updateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+
+
+                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
                 if (findOrder.status == 'completed') {
@@ -64,7 +149,9 @@ const updateOrder = async function (req, res) {
 
             if (status == 'cancelled') {
                 if (findOrder.status == 'pending') {
+
                     const updateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
                 if (findOrder.status == 'completed') {
@@ -83,7 +170,9 @@ const updateOrder = async function (req, res) {
 
             if (status == 'completed') {
                 if (findOrder.status == 'pending') {
+
                     const updateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
                 if (findOrder.status == 'completed') {
@@ -102,4 +191,9 @@ const updateOrder = async function (req, res) {
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
+
 }
+
+module.exports.createOrder=createOrder;
+module.exports.updateOrder=updateOrder;
+

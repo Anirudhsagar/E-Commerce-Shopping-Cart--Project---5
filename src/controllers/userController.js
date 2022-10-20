@@ -158,7 +158,7 @@ const createUser = async (req, res) => {
         //     return res.status(400).send({ status: false, msg: err.join(",") })
         // }
 
-        const hashPassword = await bcrypt.hash("password", 10);   
+        const hashPassword = await bcrypt.hash(password, 10);   
         req.body.password = hashPassword
 
     //  ===  ==================AWS==========================
@@ -171,9 +171,6 @@ if(files.length>0){
     data.profileImage = profileImgUrl
 }
 
-
-
-
       //=====================================
 
         let createData = await userModel.create(data)
@@ -182,49 +179,68 @@ if(files.length>0){
     catch (error) { return res.status(500).send({ status: false, msg: error.message})}
 }
 //==========================================================================
-const login = async function(req,res){
-    try{
-        const data =req.body
-       const{email,password} = data
-       //console.log(data)
-       if(!email || !password)
-       res.status(400).send({status:false, message:"Credential must be present"})
 
-       let user = await userModel.findOne({email:email})
-       //console.log(user)
-       if(!user){
-       return res.status(400).send({status:false,message : "email is not correct"})
-    }
-       let checkPassword = await userModel.findOne({password:password})
-       if(!checkPassword) {
-       return res.status(400).send({status:false,message : "password is not correct"}) }
+const login = async function (req, res) {
+    try {
+        const data = req.body
+        const { email, password } = data
+        //console.log(data)
+        if (!email || !password)
+            res.status(400).send({ status: false, message: "Credential must be present" })
+
+        console.log(password)
 
 
-       const matchPass = bcrypt.compare(password, user.password);
+
+
+        let user = await userModel.findOne({ email: email })
+
+
+        if (!user) {
+            return res.status(400).send({ status: false, message: "email is not correct" })
+        }
+
+
+
+
+        const matchPass = await bcrypt.compare(password, user.password);
+        console.log(matchPass)
+
+
         if (!matchPass) {
             return res.status(400).send({ status: false, message: "You Entered Wrong password" })
         }
-       let token = jwt.sign(
-        {
-            userId: user._id.toString(),
-            batch: "plutonium",
-            organization: "FunctionUp",
-        },
-        "Project5-group4",
-        {
-            expiresIn: '72h'
-        }
-    );
-    const finalData = {};
-    finalData.userId = user._id;
-    finalData.token = token
-    res.status(201).send({ status: true, message: "User login successfully", token:{token: finalData} });
 
 
-    }catch (error) {
-        return res.status(500).send({ status: false, message: error.message});
+
+
+
+
+
+        let token = jwt.sign(
+            {
+                userId: user._id.toString(),
+                batch: "plutonium",
+                organization: "FunctionUp",
+            },
+            "Project5-group4",
+            {
+                expiresIn: '72h'
+            }
+        );
+        const finalData = {};
+        finalData.userId = user._id;
+        finalData.token = token
+        res.status(201).send({ status: true, message: "User login successfully", token: { token: finalData } });
+
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
 }
-}
+
+
+
 //===========================================================================
 const getUser = async function (req, res) {
     try {
