@@ -21,7 +21,7 @@ const createOrder = async function (req, res) {
         if (!isValid1(data)) {
             return res.status(400).send({ status: false, message: "Please give some data to create an order" })
         }
-        if (!isValidBody(cartId)) {
+        if (isValidBody(cartId)) {
             return res.status(400).send({ status: false, message: "Please provide cartId" })
         }
         if (!isValidObjectId(cartId)) {
@@ -48,7 +48,7 @@ const createOrder = async function (req, res) {
 
         }
         if (cancellable) {
-            if (!isValidBody(cancellable)) {
+            if (isValidBody(cancellable)) {
                 return res.status(400).send({ status: false, message: "please provide cancelation property " })
             }
             var cancel = cancellable.toString().trim().toLowerCase();
@@ -58,7 +58,7 @@ const createOrder = async function (req, res) {
         }
         orderDetails.cancellable = cancel;
         if (status) {
-            if (!isValidBody(status)) {
+            if (isValidBody(status)) {
                 return res.status(400).send({ status: false, message: "please provide status property" })
             }
             var stat = status.trim().toLowerCase();
@@ -95,7 +95,7 @@ const updateOrder = async function (req, res) {
         const { orderId, status } = data;
 
         
-        if (!validator.isValidBody(data))
+        if (validator.isValidBody(data))
             return res.status(400).send({ status: false, message: "Please provide data in the request body" })
 
         
@@ -103,7 +103,7 @@ const updateOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: `The given userId is not in proper format` });
 
         
-        if (!validator.isValidBody(orderId))
+        if (validator.isValidBody(orderId))
             return res.status(400).send({ status: false, message: "OrderId is Required" });
         if (!validator.isValidObjectId(orderId))
             return res.status(400).send({ status: false, message: "The given orderId is not in proper format" });
@@ -122,7 +122,7 @@ const updateOrder = async function (req, res) {
 
 
         if (findOrder.cancellable == true) {
-            if (!isValidBody(status))
+            if (isValidBody(status))
                 return res.status(400).send({ status: false, message: "Status is required and the fields will be 'pending', 'completed', 'cancelled' only  " });
 
             
@@ -165,7 +165,7 @@ const updateOrder = async function (req, res) {
 
         if (findOrder.cancellable == false) {
 
-            if (!isValid(status))
+            if (!isValid1(status))
                 return res.status(400).send({ status: false, message: "Status is required and the fields will be 'pending', 'completed', 'cancelled' only" });
 
             if (status == 'completed') {
