@@ -131,12 +131,12 @@ if(files.length>0){
 
         let allproduct = await productModels.create(data)
 
-        return res.status(201).send({ status: true, data: allproduct })
+        return res.status(201).send({ status: true, message: "Success" ,data: allproduct })
 
 
     }
-    catch (err) {
-        return res.status(500).send({ status: false, msg: err.message })
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
@@ -189,7 +189,7 @@ const getProductById = async function (req, res) {
         const foundProduct = await productModels.findOne({ _id: id})
         if (!foundProduct) return res.status(404).send({ status: false, message: "product not found" })
 
-        return res.status(200).send({ status: true, message: "Product details", data: foundProduct })
+        return res.status(200).send({ status: true, message: "Success" , data: foundProduct })
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -293,11 +293,11 @@ if(productData.availableSizes){
 
 
         let UpdateProductData = await productModels.findByIdAndUpdate({ _id: productId }, productData, { new: true })
-        return res.status(201).send({ status: true, message: "product Updated", productData: UpdateProductData })
+        return res.status(200).send({ status: true, message: "Update product details is successful", productData: UpdateProductData })
 
 
     } catch (error) {
-        return res.status(500).send({ status: false, msg: error.message })
+        return res.status(500).send({ status: false, message : error.message })
     }
 }
 

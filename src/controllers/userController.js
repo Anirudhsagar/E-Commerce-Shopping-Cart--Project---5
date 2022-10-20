@@ -231,7 +231,7 @@ const login = async function (req, res) {
         const finalData = {};
         finalData.userId = user._id;
         finalData.token = token
-        res.status(201).send({ status: true, message: "User login successfully", token: { token: finalData } });
+        res.status(201).send({ status: true, message: "User login successfully", data:finalData });
 
 
     } catch (error) {
@@ -290,6 +290,8 @@ let updateUser = async function (req, res) {
         if (duplicateEmail) return res.status(400).send({ status: false, message: "Email already exist" }); 
 
         //validating user phone number
+
+
         if (data.phone && (!validator.isValidPhone(phone))) return res.status(400).send({ status: false, message: "Please Enter a valid Phone number" });
 
         //checking if email already exist or not
@@ -381,7 +383,7 @@ let updateUser = async function (req, res) {
         }
         let userData = await userModel.findOneAndUpdate({ _id: userId }, data, { new: true })
         if (!userData) { return res.status(404).send({ status: false, message: "no user found to update" }) }
-        return res.status(200).send({ Status: true, message: "success", data: userData })
+        return res.status(200).send({ Status: true, message: "Update user profile is successful", data: userData })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
