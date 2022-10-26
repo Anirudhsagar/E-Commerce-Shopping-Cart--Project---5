@@ -142,22 +142,7 @@ const createUser = async (req, res) => {
         } else {
             return res.status(400).send({ status: false, message: "billing address is required" })
         }
-        // let checkEmail = await userModel.findOne({ email: data.email })
-        // if (checkEmail) {
-        //     err.push("email is already register")
-        // }
-
-        // let checkPhone = await userModel.findOne({ phone: data.phone })
-        // if (checkPhone) {
-        //     err.push("phone  is already register")
-        // }
-
         
-
-        // if (err.length > 0) {
-        //     return res.status(400).send({ status: false, msg: err.join(",") })
-        // }
-
         const hashPassword = await bcrypt.hash(password, 10);   
         req.body.password = hashPassword
 
@@ -176,7 +161,7 @@ if(files.length>0){
         let createData = await userModel.create(data)
         return res.status(201).send({ status: true, data: createData })
     }
-    catch (error) { return res.status(500).send({ status: false, msg: error.message})}
+    catch (error) { return res.status(500).send({ status: false, message: error.message})}
 }
 //==========================================================================
 

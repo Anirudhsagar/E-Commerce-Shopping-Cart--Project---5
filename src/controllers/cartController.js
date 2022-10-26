@@ -28,7 +28,7 @@ const CreateCart = async function (req, res) {
           return res.status(400).status({ status: false, message: "cardId should not be empty" })
         }
         if (!isValidObjectId(cartId)) {
-          return res.status(400).send({ staus: false, message: "Please provide a valid cartId" })
+          return res.status(400).send({ status: false, message: "Please provide a valid cartId" })
         }
       }
       if (!validator.isValid1(productId)) {
@@ -148,7 +148,7 @@ const updateCart = async function (req, res) {
       }
       //////removeProduct validation
       if (!validator.isValid1(removeProduct)) {
-        return res.status(400).send({ stataus: false, message: "please provide removeProduct " })
+        return res.status(400).send({ status: false, message: "please provide removeProduct " })
       }
       if (!/^(0|1)$/.test(removeProduct)) {
         return res.status(400).send({ status: false, message: "Remove product must be 0 0r 1" })
